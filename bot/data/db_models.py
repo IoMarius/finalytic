@@ -1,14 +1,14 @@
 import uuid
 from sqlmodel import SQLModel, Field
 from datetime import datetime
-from enum import Enum
+from enum import IntEnum
 
 
-class ReceiptUploadStatus(str, Enum):
-    PENDING = "pending"
-    RETRYING = "retrying"
-    UPLOADED = "uploaded"
-    FAILED = "failed"
+class ReceiptUploadStatus(IntEnum):
+    PENDING = 0
+    RETRYING = 1
+    UPLOADED = 2
+    FAILED = 3
 
 
 class Receipt(SQLModel, table=True):

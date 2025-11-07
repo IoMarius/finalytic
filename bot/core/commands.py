@@ -1,12 +1,12 @@
 import os
 import asyncio
+from telegram import Update
+from dotenv import load_dotenv
+from data import database as db
 from .file_handler import FileHandler
 from .callbacks import ReceiptCallbacks
 from .logger import logger
 from .api import upload_receipt
-from telegram import Update
-from dotenv import load_dotenv
-from data import database as db
 
 load_dotenv()
 DATA_DIR = "data/files"
@@ -26,7 +26,7 @@ async def handle_image_command(update: Update, _):
 
     uid = update.effective_user.id
     photo = update.message.photo[-1]
-    
+
     file_handler = FileHandler(DATA_DIR)
     user_dir = file_handler.get_user_directory(uid)
     filename = file_handler.generate_filename()
@@ -52,7 +52,7 @@ async def handle_image_command(update: Update, _):
             uid=str(uid),
             filename=filename,
             image_data=image_data,
-            on_success=on_success,        
+            on_success=on_success,
             on_fail=on_fail,
         )
-    )    
+    )

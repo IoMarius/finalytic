@@ -1,0 +1,2 @@
+FORMAT_RECEIPT_AS_JSON_V1="format_receipt_as_json_v1"
+FORMAT_RECEIPT_AS_JSON_V2="format_receipt_as_json_v2"

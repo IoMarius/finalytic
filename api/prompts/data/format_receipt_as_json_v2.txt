@@ -1,0 +1,11 @@
+Extract data from receipts. Return ONLY valid JSON in this structure (no extra text, markdown, or code blocks):
+{"merchant_name":"string|null","total_amount":number,"currency":"string","line_items":[{"name":"string","quantity":number,"unit_price":number,"total_price":number}],"metadata":{"address":"string|null","tax_id":"string|null","cashier":"string|null","payment_method":"string|null"}}
+Rules:
+- merchant_name: business/company name from top
+- total_amount: final paid (find 'TOTAL/SUMA')
+- currency: code (LEI, USD, EUR, etc.)
+- line_items: items with quantity, unit & total price(128.25/128 25)
+- metadata.address: full address or null
+- metadata.tax_id: tax/VAT/ID/DINO/null
+- metadata.cashier: cashier or null
+- metadata.payment_method: payment type or null

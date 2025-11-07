@@ -1,7 +1,7 @@
 import os
 from telegram import Update
 from .logger import logger
-from bot.data.db_models import ReceiptStatus
+from bot.data.db_models import ReceiptUploadStatus
 from data import database as db
 
 
@@ -14,7 +14,7 @@ class ReceiptCallbacks:
     ):
         async def on_success(response: str):
             success = db.set_receipt_status(
-                receipt_id=receipt_id, uid=uid, status=ReceiptStatus.UPLOADED
+                receipt_id=receipt_id, uid=uid, status=ReceiptUploadStatus.UPLOADED
             )
             if success:
                 logger.info(f"Receipt {receipt_id} marked as COMPLETED")
@@ -33,7 +33,7 @@ class ReceiptCallbacks:
     def create_fail_handler(update: Update, receipt_id: str, uid: str):
         async def on_fail(failure_reason: str):
             db.set_receipt_status(
-                receipt_id=receipt_id, uid=uid, status=ReceiptStatus.FAILED
+                receipt_id=receipt_id, uid=uid, status=ReceiptUploadStatus.FAILED
             )
             logger.info(f"Receipt {receipt_id} marked as FAILED to upload.")
 

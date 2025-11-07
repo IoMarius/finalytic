@@ -6,7 +6,7 @@ from models.receipt import Receipt
 from prompts import prompts
 from dotenv import load_dotenv
 from prompts.prompt_utils import get_system_prompt
-from logger import logger
+from .logger import logger
 
 load_dotenv()
 

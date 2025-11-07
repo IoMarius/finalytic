@@ -1,6 +1,6 @@
 from sqlmodel import create_engine, Session, select
 from sqlalchemy import and_
-from .db_models import Receipt, ReceiptStatus, SQLModel
+from .db_models import Receipt, ReceiptUploadStatus, SQLModel
 from pathlib import Path
 from typing import List
 
@@ -27,7 +27,7 @@ def add_receipt(filename: str, filepath: str, uid: str) -> str:
 def set_receipt_status(
     receipt_id: str,
     uid: str,
-    status: ReceiptStatus,
+    status: ReceiptUploadStatus,
 ) -> bool:
     with Session(engine) as session:
         statement = select(Receipt).where(
@@ -43,7 +43,7 @@ def set_receipt_status(
         return True
 
 
-def get_receipts_by_status(uid: str, status: ReceiptStatus) -> List[Receipt]:
+def get_receipts_by_status(uid: str, status: ReceiptUploadStatus) -> List[Receipt]:
     with Session(engine) as session:
         statement = select(Receipt).where(
             and_(Receipt.status == status, Receipt.uid == uid)

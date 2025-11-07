@@ -1,9 +1,9 @@
 import os
 import traceback
 from dotenv import load_dotenv
-from logger import logger
 from models.receipt import ReceiptSummary
 from pydantic import ValidationError
+from .logger import logger
 from .ocr import extract_receipt_info
 from .llm_parser import convert_to_model
 from .telegram_bot import TelegramBot

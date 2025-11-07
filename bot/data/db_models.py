@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 
-class ReceiptStatus(str, Enum):
+class ReceiptUploadStatus(str, Enum):
     PENDING = "pending"
     RETRYING = "retrying"
     UPLOADED = "uploaded"
@@ -17,4 +17,4 @@ class Receipt(SQLModel, table=True):
     filepath: str
     uid: str
     timestamp: datetime = Field(default_factory=datetime.now)
-    status: ReceiptStatus = Field(default=ReceiptStatus.PENDING)
+    status: ReceiptUploadStatus = Field(default=ReceiptUploadStatus.PENDING)

@@ -12,11 +12,12 @@ from fastapi import (
 from models.receipt import APIResponse
 from core.pipeline import process_receipt
 
+
 load_dotenv()
 API_HOST = os.getenv("API_HOST", "127.0.0.1")
 API_PORT = int(os.getenv("API_PORT", 8085))
 
-app = FastAPI(title="Finalitic API")
+app = FastAPI(title="Finalytic API")
 receipt_router = APIRouter(prefix="/api/v1/receipts")
 
 
@@ -32,7 +33,7 @@ async def store_as_json(
         )
 
     receipt = await photo.read()
-    
+
     background_tasks.add_task(process_receipt, receipt, uid)
 
     return APIResponse(
@@ -45,5 +46,7 @@ app.include_router(receipt_router)
 
 if __name__ == "__main__":
     import uvicorn
+    from data.database import init_db
 
+    init_db()
     uvicorn.run("app:app", host=API_HOST, port=API_PORT, reload=True)

@@ -3,9 +3,9 @@ import os
 from openai import OpenAI
 from pydantic import ValidationError
 from models.receipt import Receipt
-from prompts import prompts
+from data.prompts import prompts
 from dotenv import load_dotenv
-from prompts.prompt_utils import get_system_prompt
+from data.prompts.prompt_utils import get_system_prompt
 from .logger import logger
 
 load_dotenv()

@@ -3,17 +3,17 @@ import traceback
 from dotenv import load_dotenv
 from models.receipt import ReceiptSummary
 from pydantic import ValidationError
-from .logger import logger
-from .ocr import extract_receipt_info
-from .llm_parser import convert_to_model
-from .telegram_bot import TelegramBot
+from core.logger import logger
+from core.ocr import extract_receipt_info
+from core.llm_parser import convert_to_model
+from core.telegram_bot import TelegramBot
 
 load_dotenv()
 BOT = TelegramBot(bot_token=os.getenv("BOT_TOKEN"))
 OCR_BLOCKS_THRESHOLD = int(os.getenv("OCR_BLOCKS_THRESHOLD"))
 
 
-def process_receipt(image_bytes: bytes, uid: str):
+def process_raw_receipt(image_bytes: bytes, uid: str):
     logger.info(f"Processing receipt from user {uid}")
 
     try:
@@ -31,7 +31,6 @@ def process_receipt(image_bytes: bytes, uid: str):
             )
 
         receipt = convert_to_model(receipt_text)
-        # todo: store the receipt info in db
 
         summary = ReceiptSummary(
             merchant_name=receipt.merchant_name,

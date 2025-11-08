@@ -35,18 +35,18 @@ class ReceiptItemCategory(IntEnum):
     OTHER = 99
 
 
-class User(SQLModel, table=True):
+class DbUser(SQLModel, table=True):
     __tablename__ = "users"
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
-    user_id: str = Field(index=True)  # telegram provided uid
-    passphrase: str
+    telegram_uid: str = Field(index=True, unique=True)  # telegram provided uid
+    passphrase: Optional[str]
 
-    receipts: List["Receipt"] = Relationship(
+    receipts: List["DbReceipt"] = Relationship(
         back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
 
 
-class Receipt(SQLModel, table=True):
+class DbReceipt(SQLModel, table=True):
     __tablename__ = "receipts"
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
@@ -55,19 +55,21 @@ class Receipt(SQLModel, table=True):
     currency: str = Field(max_length=10)
     time_stamp: datetime = Field(default_factory=datetime.now)
     receipt_lq_image_path: Optional[str] = Field(default=None, nullable=True)
-    user_id: str = Field(foreign_key="users.id", index=True)  # telegram provided uid
+    
+    user_id: str = Field(foreign_key="users.id", index=True)     
+    user: "DbUser" = Relationship(back_populates="receipts")
 
-    items: List["ReceiptItem"] = Relationship(
-        back_populates="receipts",
+    items: List["DbReceiptItem"] = Relationship(
+        back_populates="receipt",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    operation_metadata: Optional["ReceiptMetadata"] = Relationship(
-        back_populates="receipts",
+    operation_metadata: Optional["DbReceiptMetadata"] = Relationship(
+        back_populates="receipt",
         sa_relationship_kwargs={"uselist": False, "cascade": "all, delete-orphan"},
     )
 
 
-class ReceiptMetadata(SQLModel, table=True):
+class DbReceiptMetadata(SQLModel, table=True):
     __tablename__ = "receipt_metadata"
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
     address: Optional[str] = Field(default=None, nullable=True)
@@ -76,10 +78,10 @@ class ReceiptMetadata(SQLModel, table=True):
     payment_method: Optional[str] = Field(default=None, nullable=True)
 
     receipt_id: str = Field(foreign_key="receipts.id", ondelete="CASCADE")
-    receipt: "Receipt" = Relationship(back_populates="operation_metadata")
+    receipt: "DbReceipt" = Relationship(back_populates="operation_metadata")
 
 
-class ReceiptItem(SQLModel, table=True):
+class DbReceiptItem(SQLModel, table=True):
     __tablename__ = "receipt_items"
     __table_args__ = (
         CheckConstraint("quantity > 0", name="check_quantity_positive"),
@@ -95,4 +97,4 @@ class ReceiptItem(SQLModel, table=True):
     category: ReceiptItemCategory = Field(default=ReceiptItemCategory.NOT_CLASSIFIED)
 
     receipt_id: str = Field(foreign_key="receipts.id", ondelete="CASCADE")
-    receipt: "Receipt" = Relationship(back_populates="items")
+    receipt: "DbReceipt" = Relationship(back_populates="items")

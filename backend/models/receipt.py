@@ -24,6 +24,7 @@ class LineItem(BaseModel):
     @classmethod
     def validate_total(cls, v, info):
         """Optionally validate that total = quantity * unit_price"""
+        """Optionally validate that total = quantity * unit_price"""
         # You can enable this validation if needed
         quantity = info.data.get("quantity")
         unit_price = info.data.get("unit_price")

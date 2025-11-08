@@ -1,6 +1,7 @@
 import os
 from sqlmodel import create_engine, Session
 from .db_models import SQLModel
+from contextlib import contextmanager
 
 DATABASE_URL = (
     f"postgresql+psycopg2://"
@@ -19,13 +20,14 @@ engine = create_engine(
 
 
 def init_db():
-    from .db_models import User, Receipt, ReceiptItem, ReceiptMetadata
+    from .db_models import DbUser, DbReceipt, DbReceiptItem, DbReceiptMetadata
 
     print("[DB] Start create database tables")
     SQLModel.metadata.create_all(engine)
     print("[DB] Database tables created successfully")
 
 
+@contextmanager
 def get_session():
     with Session(engine) as session:
         yield session

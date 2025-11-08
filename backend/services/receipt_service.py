@@ -7,7 +7,7 @@ from models.receipt import Receipt, ReceiptSummary
 
 from core.logger import logger
 from core.ocr import extract_receipt_info
-from core.llm_parser import convert_to_model
+from core.llm_parser import convert_receipt_text_to_json
 from core.telegram_bot import TelegramBot
 from data.database import get_session
 from data.repositories.user_repository import UserRepository
@@ -37,7 +37,7 @@ def process_raw_receipt(image_bytes: bytes, telegram_uid: str):
                 "Could not extract text from receipt image.",
             )
 
-        receipt = convert_to_model(receipt_text)
+        receipt = convert_receipt_text_to_json(receipt_text)
         _store_receipt(receipt, image_bytes, user_id)
 
         summary = ReceiptSummary(

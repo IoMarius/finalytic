@@ -1,6 +1,8 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Generic, Optional, List, TypeVar
 
+from backend.data.db_models import ReceiptItemCategory
+
 T = TypeVar("T")
 
 
@@ -85,3 +87,9 @@ class ReceiptSummary(BaseModel):
     total_amount: float
     currency: str
     total_items: int
+
+
+class CategorizedReceiptItem(BaseModel):
+    row_id: str
+    name: str
+    category: Optional[ReceiptItemCategory] = None

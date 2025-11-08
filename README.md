@@ -2,8 +2,6 @@
 
 A self-hosted Telegram bot for tracking expenses by analyzing receipt photos and QR codes. Built with FastAPI and Python Telegram Bot.
 
----
-
 ## 🌟 Features
 
 ### Receipt Processing
@@ -28,17 +26,12 @@ A self-hosted Telegram bot for tracking expenses by analyzing receipt photos and
   - Additional metadata (tax ID, cashier, store address, etc)
 
 
-
----
-
 ## 🛠️ Architecture
 
 The application consists of two individual main components:
 
 1. **Telegram Bot** - Handles user interaction and receipt photo uploads  
 2. **Backend API** - Processes receipts using OCR and AI analysis
-
----
 
 ## Tech Stack
 - Python 3.13+
@@ -48,8 +41,6 @@ The application consists of two individual main components:
 - PaddleOCR
 - PostgreSQL
 - SQLite (for bot storage)
-
----
 
 ## 🚀 Getting Started
 
@@ -67,7 +58,6 @@ The application consists of two individual main components:
 
 Or using Docker:
 - comming soon...
----
 
 ## 📝 Usage
 1. Start a chat with your bot on Telegram  
@@ -76,14 +66,9 @@ Or using Docker:
 4. The bot will process and store the receipt information
 ... more to come
 
----
-
 ## 📜 License
 This project is licensed under a **Custom MIT Non-Commercial License**. For personal or educational use only. See the LICENSE file for details.
 
----
 
 ## 🤝 Contributing
 Contributions welcome!
-
----

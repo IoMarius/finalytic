@@ -7,7 +7,7 @@ LOG_DIR.mkdir(exist_ok=True)
 LOG_FILE = LOG_DIR / "app.log"
 
 # Create a logger
-logger = logging.getLogger("finalitic")
+logger = logging.getLogger("finalytic")
 logger.setLevel(logging.DEBUG)
 
 # Create file handler

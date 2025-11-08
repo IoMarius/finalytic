@@ -6,6 +6,7 @@ from fastapi import (
     HTTPException,
     BackgroundTasks,
 )
+import asyncio
 from models.receipt import APIResponse
 from services.receipt_service import process_raw_receipt
 
@@ -28,7 +29,8 @@ async def store_as_json(
 
     receipt = await photo.read()
 
-    background_tasks.add_task(process_raw_receipt, receipt, uid)
+    asyncio.create_task(process_raw_receipt(image_bytes=receipt, telegram_uid=uid))
+    # background_tasks.add_task(process_raw_receipt, receipt, uid)
 
     return APIResponse(
         success=True,

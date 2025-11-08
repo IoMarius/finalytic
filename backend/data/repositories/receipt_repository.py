@@ -1,5 +1,6 @@
 from typing import List, Optional
 from datetime import datetime
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select, and_
 from ..db_models import DbReceipt, DbReceiptItem, DbReceiptMetadata, ReceiptItemCategory
@@ -7,13 +8,13 @@ from .base_repository import BaseRepository
 
 
 class ReceiptRepository(BaseRepository[DbReceipt]):
+
     def __init__(self, session: AsyncSession):
         super().__init__(DbReceipt, session)
 
-    def get_user_receipts(
+    async def get_user_receipts(
         self, user_id: str, skip: int = 0, limit: int = 100
     ) -> List[DbReceipt]:
-        """Get all receipts for a user"""
         statement = (
             select(DbReceipt)
             .where(DbReceipt.user_id == user_id)
@@ -21,12 +22,12 @@ class ReceiptRepository(BaseRepository[DbReceipt]):
             .offset(skip)
             .limit(limit)
         )
-        return self.session.exec(statement).all()
+        result = await self.session.execute(statement)
+        return result.scalars().all()
 
-    def get_receipts_by_date_range(
+    async def get_receipts_by_date_range(
         self, user_id: str, start_date: datetime, end_date: datetime
     ) -> List[DbReceipt]:
-        """Get receipts within date range"""
         statement = (
             select(DbReceipt)
             .where(
@@ -38,12 +39,12 @@ class ReceiptRepository(BaseRepository[DbReceipt]):
             )
             .order_by(DbReceipt.time_stamp.desc())
         )
-        return self.session.exec(statement).all()
+        result = await self.session.execute(statement)
+        return result.scalars().all()
 
-    def get_receipts_by_merchant(
+    async def get_receipts_by_merchant(
         self, user_id: str, merchant_name: str
     ) -> List[DbReceipt]:
-        """Get all receipts from a specific merchant"""
         statement = (
             select(DbReceipt)
             .where(
@@ -54,9 +55,10 @@ class ReceiptRepository(BaseRepository[DbReceipt]):
             )
             .order_by(DbReceipt.time_stamp.desc())
         )
-        return self.session.exec(statement).all()
+        result = await self.session.execute(statement)
+        return result.scalars().all()
 
-    def create_receipt_with_items(
+    async def create_receipt_with_items(
         self,
         user_id: str,
         merchant_name: str,
@@ -75,7 +77,7 @@ class ReceiptRepository(BaseRepository[DbReceipt]):
         )
 
         self.session.add(receipt)
-        self.session.flush()
+        await self.session.flush()  # async flush
 
         for item_data in items:
             item = DbReceiptItem(
@@ -98,17 +100,16 @@ class ReceiptRepository(BaseRepository[DbReceipt]):
             )
             self.session.add(receipt_metadata)
 
-        self.session.commit()
-        self.session.refresh(receipt)
+        await self.session.commit()
+        await self.session.refresh(receipt)
         return receipt
 
-    def get_total_spending(
+    async def get_total_spending(
         self,
         user_id: str,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
     ) -> int:
-        """Calculate total spending in cents"""
         statement = select(DbReceipt).where(DbReceipt.user_id == user_id)
 
         if start_date:
@@ -116,19 +117,16 @@ class ReceiptRepository(BaseRepository[DbReceipt]):
         if end_date:
             statement = statement.where(DbReceipt.time_stamp <= end_date)
 
-        receipts = self.session.exec(statement).all()
+        result = await self.session.execute(statement)
+        receipts = result.scalars().all()
         return sum(r.total_amount_cents for r in receipts)
 
-    def get_spending_by_category(
+    async def get_spending_by_category(
         self,
         user_id: str,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
     ) -> dict:
-        """Get spending grouped by category"""
-        from sqlmodel import func
-
-        # Build base query
         statement = (
             select(
                 DbReceiptItem.category,
@@ -144,7 +142,6 @@ class ReceiptRepository(BaseRepository[DbReceipt]):
         if end_date:
             statement = statement.where(DbReceipt.time_stamp <= end_date)
 
-        results = self.session.exec(statement).all()
-        return {
-            ReceiptItemCategory(category).name: total for category, total in results
-        }
+        result = await self.session.execute(statement)
+        rows = result.all()
+        return {ReceiptItemCategory(category).name: total for category, total in rows}

@@ -13,15 +13,16 @@ from data.database import get_session
 from data.repositories.user_repository import UserRepository
 from data.repositories.receipt_repository import ReceiptRepository
 from models.mapping.receipt_mapper import ReceiptMapper
+from tools.image_service import ImageManager
 
 load_dotenv()
 BOT = TelegramBot(bot_token=os.getenv("BOT_TOKEN"))
 OCR_BLOCKS_THRESHOLD = int(os.getenv("OCR_BLOCKS_THRESHOLD"))
 
 
-def process_raw_receipt(image_bytes: bytes, telegram_uid: str):
+async def process_raw_receipt(image_bytes: bytes, telegram_uid: str):
     try:
-        user_id = _create_user_if_missing(telegram_uid)
+        user_id = await _create_user_if_missing(telegram_uid)
         logger.info(f"Processing receipt from user {user_id}")
 
         receipt_text, total_blocks = extract_receipt_info(image_bytes)
@@ -38,7 +39,7 @@ def process_raw_receipt(image_bytes: bytes, telegram_uid: str):
             )
 
         receipt = convert_receipt_text_to_json(receipt_text)
-        _store_receipt(receipt, image_bytes, user_id)
+        await _store_receipt(receipt, image_bytes, user_id)
 
         summary = ReceiptSummary(
             merchant_name=receipt.merchant_name,
@@ -73,22 +74,28 @@ def process_raw_receipt(image_bytes: bytes, telegram_uid: str):
         )
 
 
-def _create_user_if_missing(telegram_uid: str) -> str:  # user id (internal)
-    with get_session() as session:
+async def _create_user_if_missing(telegram_uid: str) -> str:  # user id (internal)
+    async with get_session() as session:
         repo = UserRepository(session)
+        userExists = await repo.user_exists(telegram_id=telegram_uid)
 
-        if repo.user_exists(telegram_id=telegram_uid):
-            return repo.get_by_telegram_id(telegram_uid).id
+        if userExists:
+            user = await repo.get_by_telegram_id(telegram_uid)
+            return user.id
 
-        return repo.create_user(telegram_uid, None).id  # no passphrase for nowF
+        new_user = await repo.create_user(telegram_uid, None)  # no passphrase for nowF
+        return new_user.id
 
 
-def _store_receipt(receipt: Receipt, image_bytes: bytes, user_id: str):
+async def _store_receipt(receipt: Receipt, image_bytes: bytes, user_id: str):
+    images = ImageManager()
+    store_result = images.save_receipt_image(image_bytes, user_id)
+
     mapper = ReceiptMapper()
-    # TODO: store receipt image
-
     db_receipt = mapper.convert_complete_receipt(receipt, user_id)
-    with get_session() as session:
+    db_receipt.receipt_lq_image_path = store_result["relative_path"]
+
+    async with get_session() as session:
         repo = ReceiptRepository(session)
-        repo.create(db_receipt)
+        await repo.create(db_receipt)
         logger.debug(f"Receipt saved successfully for user {user_id}")

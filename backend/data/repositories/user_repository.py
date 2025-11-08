@@ -6,27 +6,27 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class UserRepository(BaseRepository[DbUser]):
+
     def __init__(self, session: AsyncSession):
         super().__init__(DbUser, session)
 
-    def get_by_telegram_id(self, telegram_id: str) -> Optional[DbUser]:
+    async def get_by_telegram_id(self, telegram_id: str) -> Optional[DbUser]:
         statement = select(DbUser).where(DbUser.telegram_uid == telegram_id)
-        return self.session.exec(statement).first()
+        result = await self.session.execute(statement)
+        return result.scalar_one_or_none()
 
-    def create_user(
-        self,
-        telegram_id: str,
-        passphrase: Optional[str],  # TODO: optional passphrase for now :)
+    async def create_user(
+        self, telegram_id: str, passphrase: Optional[str] = None
     ) -> DbUser:
         user = DbUser(telegram_uid=telegram_id, passphrase=passphrase)
-        return self.create(user)
+        return await self.create(user)
 
-    def user_exists(self, telegram_id: str) -> bool:
-        return self.get_by_telegram_id(telegram_id) is not None
+    async def user_exists(self, telegram_id: str) -> bool:
+        return await self.get_by_telegram_id(telegram_id) is not None
 
-    def verify_passphrase(self, telegram_id: str, passphrase: str) -> bool:
-        user = self.get_by_telegram_id(telegram_id)
+    async def verify_passphrase(self, telegram_id: str, passphrase: str) -> bool:
+        user = await self.get_by_telegram_id(telegram_id)
         if user:
-            # TODO: password hashing (bcrypt, argon2)
+            # TODO: password hashing
             return user.passphrase == passphrase
         return False

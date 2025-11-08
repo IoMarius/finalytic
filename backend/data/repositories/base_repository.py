@@ -6,40 +6,36 @@ T = TypeVar("T", bound=SQLModel)
 
 
 class BaseRepository(Generic[T]):
-    """Base repository with common CRUD operations"""
+    """Base async repository with common CRUD operations"""
 
     def __init__(self, model: Type[T], session: AsyncSession):
         self.model = model
         self.session = session
 
-    def get_by_id(self, id: str) -> Optional[T]:
-        """Get entity by ID"""
-        return self.session.get(self.model, id)
+    async def get_by_id(self, id: str) -> Optional[T]:
+        return await self.session.get(self.model, id)
 
-    def get_all(self, skip: int = 0, limit: int = 100) -> List[T]:
-        """Get all entities with pagination"""
+    async def get_all(self, skip: int = 0, limit: int = 100) -> List[T]:
         statement = select(self.model).offset(skip).limit(limit)
-        return self.session.exec(statement).all()
+        result = await self.session.execute(statement)
+        return result.scalars().all()
 
-    def create(self, entity: T) -> T:
-        """Create new entity"""
+    async def create(self, entity: T) -> T:
         self.session.add(entity)
-        self.session.commit()
-        self.session.refresh(entity)
+        await self.session.commit()
+        await self.session.refresh(entity)
         return entity
 
-    def update(self, entity: T) -> T:
-        """Update existing entity"""
+    async def update(self, entity: T) -> T:
         self.session.add(entity)
-        self.session.commit()
-        self.session.refresh(entity)
+        await self.session.commit()
+        await self.session.refresh(entity)
         return entity
 
-    def delete(self, id: str) -> bool:
-        """Delete entity by ID"""
-        entity = self.get_by_id(id)
+    async def delete(self, id: str) -> bool:
+        entity = await self.get_by_id(id)
         if entity:
-            self.session.delete(entity)
-            self.session.commit()
+            await self.session.delete(entity)
+            await self.session.commit()
             return True
         return False

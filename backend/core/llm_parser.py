@@ -8,7 +8,7 @@ from data.db_models import DbReceiptItem
 from typing import List
 from dotenv import load_dotenv
 from data.prompts.prompt_utils import get_system_prompt
-from .logger import logger
+from core.logger import logger
 
 load_dotenv()
 
@@ -19,6 +19,8 @@ client = OpenAI(api_key=GPT_API_KEY)
 
 
 def convert_receipt_text_to_json(receipt: str) -> Receipt:
+    print("Logger handlers:", logger.handlers)
+    logger.debug("Test log")
     raw_json = _make_request(
         prompt=receipt, system_prompt_keyword=prompts.FORMAT_RECEIPT_AS_JSON_V3
     )
@@ -29,7 +31,7 @@ def convert_receipt_text_to_json(receipt: str) -> Receipt:
         return Receipt(**data)
     except ValidationError as e:
         logger.error("Validation error while openapi receipt response", e)
-        print("Validation error while parsing receipt:", e)
+        # print("Validation error while parsing receipt:", e)
         raise
 
 
@@ -52,7 +54,7 @@ def classify_receipt_items(
         return [CategorizedReceiptItem.model_validate(item) for item in data]
     except ValidationError as e:
         logger.error("Validation error while openapi receipt items response", e)
-        print("Validation error while parsing receipt items:", e)
+        # print("Validation error while parsing receipt items:", e)
         raise
 
 def _make_request(prompt, system_prompt_keyword) -> str:

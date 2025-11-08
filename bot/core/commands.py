@@ -27,7 +27,7 @@ async def handle_image_command(update: Update, _):
     uid = update.effective_user.id
     photo = update.message.photo[-1]
 
-    file_handler = FileHandler(DATA_DIR)
+    file_handler = FileHandler(RECEIPTS_DIR)
     user_dir = file_handler.get_user_directory(uid)
     filename = file_handler.generate_filename()
     filepath = os.path.join(user_dir, filename)

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Generic, Optional, List, TypeVar
 
-from backend.data.db_models import ReceiptItemCategory
+from data.db_models import ReceiptItemCategory
 
 T = TypeVar("T")
 

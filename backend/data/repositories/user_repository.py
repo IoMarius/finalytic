@@ -1,11 +1,12 @@
 from typing import Optional
-from sqlmodel import Session, select
+from sqlmodel import select
 from ..db_models import DbUser
 from .base_repository import BaseRepository
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class UserRepository(BaseRepository[DbUser]):
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         super().__init__(DbUser, session)
 
     def get_by_telegram_id(self, telegram_id: str) -> Optional[DbUser]:

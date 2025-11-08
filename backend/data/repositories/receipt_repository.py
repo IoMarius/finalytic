@@ -1,12 +1,13 @@
 from typing import List, Optional
 from datetime import datetime
-from sqlmodel import Session, select, and_, or_
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select, and_
 from ..db_models import DbReceipt, DbReceiptItem, DbReceiptMetadata, ReceiptItemCategory
 from .base_repository import BaseRepository
 
 
 class ReceiptRepository(BaseRepository[DbReceipt]):
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         super().__init__(DbReceipt, session)
 
     def get_user_receipts(

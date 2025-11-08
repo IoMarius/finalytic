@@ -1,5 +1,6 @@
 from typing import TypeVar, Generic, Type, Optional, List
-from sqlmodel import Session, select, SQLModel
+from sqlmodel import select, SQLModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
 T = TypeVar("T", bound=SQLModel)
 
@@ -7,7 +8,7 @@ T = TypeVar("T", bound=SQLModel)
 class BaseRepository(Generic[T]):
     """Base repository with common CRUD operations"""
 
-    def __init__(self, model: Type[T], session: Session):
+    def __init__(self, model: Type[T], session: AsyncSession):
         self.model = model
         self.session = session
 

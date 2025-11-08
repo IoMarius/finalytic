@@ -1,4 +1,4 @@
-# Finalytic - Self-Hosted Receipt Tracking Bot
+# Finalytic - Self-Hosted Expenses Tracking Bot
 
 A self-hosted Telegram bot for tracking expenses by analyzing receipt photos and QR codes. Built with FastAPI and Python Telegram Bot.
 

@@ -17,9 +17,9 @@ client = OpenAI(api_key=GPT_API_KEY)
 
 
 def convert_to_model(receipt: str) -> Receipt:
-    system_prompt = get_system_prompt(prompts.FORMAT_RECEIPT_AS_JSON_V2)
+    system_prompt = get_system_prompt(prompts.FORMAT_RECEIPT_AS_JSON_V3)
     logger.debug(
-        f"Sending request to {GPT_MODEL}. Using {prompts.FORMAT_RECEIPT_AS_JSON_V2}."
+        f"Sending request to {GPT_MODEL}. Using {prompts.FORMAT_RECEIPT_AS_JSON_V3}."
     )
     response = client.chat.completions.create(
         model=GPT_MODEL,

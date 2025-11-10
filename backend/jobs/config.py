@@ -1,8 +1,16 @@
+from jobs import scheduler, UsersExpensesJob, IntervalTrigger, CronTrigger
+from data import UserRepository, ReceiptRepository
+from models import CalculationPeriod
 
-from job_scheduler import scheduler, CronTrigger
+if not scheduler.get_job("user-expenses-by_year"):
+    job = UsersExpensesJob(UserRepository, ReceiptRepository)
+    scheduler.add_job(
+        job.for_all_users(CalculationPeriod.YEAR),
+        trigger=CronTrigger(month=12, day=31, hour=23, minute=59),
+        id="user-expenses-years",
+        replace_existing=True,
+    )
 
-
-# scheduler.add_job()
 # if not scheduler.get_job("ten_minute_job"):
 #     scheduler.add_job(
 #         periodic_task,
@@ -10,3 +18,11 @@ from job_scheduler import scheduler, CronTrigger
 #         id="ten_minute_job",
 #         replace_existing=True,
 #     )
+
+
+# scheduler.add_job(
+#     my_job,
+#     trigger=CronTrigger(day=1, hour=0, minute=0),
+#     id="monthly_job",
+#     replace_existing=True
+# )

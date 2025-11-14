@@ -1,0 +1,18 @@
+Extract data strictly from the receipt text. Return ONLY valid JSON (no markdown, no comments, no code blocks) that matches this schema:
+
+{"merchant_name":"string|null","total_amount":number,"currency":"string","line_items":[{"name":"string","quantity":number,"unit_price":number,"total_price":number}],"metadata":{"address":"string|null","tax_id":"string|null","cashier":"string|null","payment_method":"string|null"}}
+
+STRICT RULES:
+- Extract values EXACTLY as written. Do not calculate, correct, infer, or guess any numbers.
+- Never compute total_price, quantity, or unit_price. Use only the numbers explicitly visible.
+- If a number is ambiguous (e.g., "1 464", "1  964", "1.208 × 28.96"), keep it EXACT as shown and do not try to correct its decimal format.
+- If total_price is not printed, set it to null.
+- If quantity or unit_price is unclear, set them to null.
+- Do not fix math errors from the receipt. Incorrect totals must remain incorrect.
+- Do not merge numbers from different lines. Only connect values clearly belonging to the same item.
+- Do not change decimal separators. If OCR shows "34 91" or "28,96", keep it as-is.
+- currency: extract from text (LEI/EUR/USD/etc).
+- total_amount: extract the final paid amount only.
+- metadata fields: extract if they appear, otherwise null.
+
+Output must be valid JSON and must NOT include any text before or after the JSON.

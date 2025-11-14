@@ -1,22 +1,13 @@
 import os
 import traceback
+from dotenv import load_dotenv
+from pydantic import ValidationError
 
-from services import (
-    ValidationError,
-    logger,
-    load_dotenv,
-    extract_receipt_info,
-    convert_receipt_text_to_json,
-    TelegramBot,
-    get_session,
-    UserRepository,
-    ReceiptRepository,
-    ReceiptMapper,
-    ImageManager,
-    Receipt,
-    ReceiptSummary,
-)
-
+from core import logger, TelegramBot, extract_receipt_info, convert_receipt_text_to_json
+from models import Receipt, ReceiptSummary, ReceiptMapper
+from tools import ImageManager
+from data.database import get_session
+from data.repositories import UserRepository, ReceiptRepository
 
 load_dotenv()
 BOT = TelegramBot(bot_token=os.getenv("BOT_TOKEN"))
@@ -53,7 +44,9 @@ async def process_raw_receipt(image_bytes: bytes, telegram_uid: str):
 
         BOT.send_receipt_summary(telegram_uid, summary)
     except ValidationError as e:
-        logger.error("Pipeline ocr to json validation exception.", e)
+        logger.error(
+            "Pipeline ocr to json validation exception.\n Receipt:", receipt_text, e
+        )
 
         error_messages = []
         for err in e.errors():

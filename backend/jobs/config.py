@@ -1,6 +1,10 @@
-from jobs import scheduler, UsersExpensesJob, IntervalTrigger, CronTrigger
-from data import UserRepository, ReceiptRepository
-from models import CalculationPeriod
+from jobs import scheduler, UsersExpensesJob
+from data.repositories import UserRepository, ReceiptRepository
+from data import CalculationPeriod
+
+from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
+
 
 if not scheduler.get_job("user-expenses-by_year"):
     job = UsersExpensesJob(UserRepository, ReceiptRepository)

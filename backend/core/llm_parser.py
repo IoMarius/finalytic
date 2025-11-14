@@ -19,8 +19,6 @@ client = OpenAI(api_key=GPT_API_KEY)
 
 
 def convert_receipt_text_to_json(receipt: str) -> Receipt:
-    print("Logger handlers:", logger.handlers)
-    logger.debug("Test log")
     raw_json = _make_request(
         prompt=receipt, system_prompt_keyword=prompts.FORMAT_RECEIPT_AS_JSON_V3
     )
@@ -30,8 +28,11 @@ def convert_receipt_text_to_json(receipt: str) -> Receipt:
     try:
         return Receipt(**data)
     except ValidationError as e:
-        logger.error("Validation error while openapi receipt response", e)
-        # print("Validation error while parsing receipt:", e)
+        logger.error(
+            "Validation error while openapi receipt response",
+            data,
+            e,
+        )
         raise
 
 
@@ -53,9 +54,13 @@ def classify_receipt_items(
     try:
         return [CategorizedReceiptItem.model_validate(item) for item in data]
     except ValidationError as e:
-        logger.error("Validation error while openapi receipt items response", e)
-        # print("Validation error while parsing receipt items:", e)
+        logger.error(
+            "Validation error while openapi receipt items response.\n Response:",
+            data,
+            e,
+        )
         raise
+
 
 def _make_request(prompt, system_prompt_keyword) -> str:
     system_prompt = get_system_prompt(system_prompt_keyword)

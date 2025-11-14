@@ -1,5 +1,8 @@
 import os
-from jobs import load_dotenv, SQLAlchemyJobStore, AsyncIOScheduler
+from dotenv import load_dotenv
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+
 
 load_dotenv()
 DATABASE_URL = (

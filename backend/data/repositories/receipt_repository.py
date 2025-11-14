@@ -1,17 +1,13 @@
-from repositories import (
-    func,
-    select,
-    and_,
-    datetime,
-    List,
-    Optional,
-    AsyncSession,
-    DbReceipt,
-    DbReceiptItem,
-    DbReceiptMetadata,
-    ReceiptItemCategory,
-    BaseRepository,
-)
+from datetime import datetime
+from typing import List, Optional
+
+from sqlalchemy import func
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select, and_
+
+from .base_repository import BaseRepository
+from data import DbReceipt
+
 
 class ReceiptRepository(BaseRepository[DbReceipt]):
 

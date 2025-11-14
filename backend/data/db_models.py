@@ -2,13 +2,19 @@ import uuid
 from datetime import datetime
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
-from sqlalchemy import CheckConstraint
+from sqlalchemy import CheckConstraint, UniqueConstraint
 from enum import IntEnum
 
 
 class ReceiptScanMethod(IntEnum):
     OCR = 0  # receipt photo ocr -> llm
     QR_CODE = 1  # receipt qr code
+
+
+class CalculationPeriod(IntEnum):
+    WEEK = 0
+    MONTH = 1
+    YEAR = 2
 
 
 class ReceiptItemCategory(IntEnum):
@@ -44,6 +50,9 @@ class DbUser(SQLModel, table=True):
     receipts: List["DbReceipt"] = Relationship(
         back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
+    expenses: List["DbUserExpenseSummary"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 
 class DbReceipt(SQLModel, table=True):
@@ -55,8 +64,8 @@ class DbReceipt(SQLModel, table=True):
     currency: str = Field(max_length=10)
     time_stamp: datetime = Field(default_factory=datetime.now)
     receipt_lq_image_path: Optional[str] = Field(default=None, nullable=True)
-    
-    user_id: str = Field(foreign_key="users.id", index=True)     
+
+    user_id: str = Field(foreign_key="users.id", index=True)
     user: "DbUser" = Relationship(back_populates="receipts")
 
     items: List["DbReceiptItem"] = Relationship(
@@ -98,3 +107,26 @@ class DbReceiptItem(SQLModel, table=True):
 
     receipt_id: str = Field(foreign_key="receipts.id", ondelete="CASCADE")
     receipt: "DbReceipt" = Relationship(back_populates="items")
+
+
+class DbUserExpenseSummary(SQLModel, table=True):
+    __tablename__ = "user_expenses_summary"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "period_type",
+            "period_start",
+            "period_end",
+            name="uq_user_period",
+        ),
+    )
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    period_type: CalculationPeriod
+    period_start: datetime
+    period_end: datetime
+    total_expense_cents: int
+    calculated_at: datetime = Field(default_factory=datetime.now)
+
+    user_id: str = Field(foreign_key="users.id", index=True)
+    user: "DbUser" = Relationship(back_populates="expenses")

@@ -1,23 +1,23 @@
-from services import (
-    UserRepository,
-    ReceiptRepository,
-    CalculationPeriod,
-    period_to_daterange,
-    logger,
-)
-
+from data import CalculationPeriod
+from tools import period_to_daterange
+from core import logger
+from data.repositories import ExpensesRepository, UserRepository, ReceiptRepository
 
 class UsersExpensesJob:
-    def __init__(self, user_repo: UserRepository, receipt_repo: ReceiptRepository):
+    def __init__(
+        self,
+        user_repo: UserRepository,
+        receipt_repo: ReceiptRepository,
+        expenses_repo: ExpensesRepository,
+    ):
         self.user_repo = user_repo
         self.receipt_repo = receipt_repo
+        self.expenses_repo = expenses_repo
 
     async def for_all_users(self, period: CalculationPeriod) -> None:
         users = await self.user_repo.get_all()
-
         for user in users:
-
-            self.for_user(user_id=user.id)
+            self.for_user(user_id=user.id, period=period)
 
     async def for_user(self, user_id: str, period: CalculationPeriod) -> bool:
         logger.info(f"Start calculate user {user_id} expenses for period {period}.")
@@ -27,10 +27,16 @@ class UsersExpensesJob:
                 user_id, start_date=start, end_date=end
             )
 
-            # place is some table or smth. create
+            self.expenses_repo.upsert_summary(
+                user_id,
+                period_type=period,
+                period_start=start,
+                period_end=end,
+                total_expense_cents=total_cents,
+            )
 
             logger.info(
-                f"Successfully calculated user {user_id} expenses for period {period}"
+                f"Successfully calculated user {user_id} expenses for period {period}."
             )
             return True
 

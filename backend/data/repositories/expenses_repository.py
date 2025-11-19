@@ -1,7 +1,8 @@
-from sqlalchemy import insert
+# from sqlalchemy import insert
 from datetime import datetime
 from typing import List
 
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select, and_
 
@@ -45,7 +46,7 @@ class ExpensesRepository(BaseRepository[DbUserExpenseSummary]):
             period_start=period_start,
             period_end=period_end,
             total_expense_cents=total_expense_cents,
-            calculated_at=datetime.now,
+            calculated_at=datetime.now(),
         )
 
         stmt = stmt.on_conflict_do_update(
@@ -57,7 +58,7 @@ class ExpensesRepository(BaseRepository[DbUserExpenseSummary]):
             ],
             set_={
                 "total_expense_cents": stmt.excluded.total_expense_cents,
-                "calculated_at": datetime.now,
+                "calculated_at": datetime.now(),
             },
         )
 

@@ -1,17 +1,13 @@
-from jobs import scheduler, UsersExpensesJob
-from data.repositories import UserRepository, ReceiptRepository
-from data import CalculationPeriod
-
-from apscheduler.triggers.cron import CronTrigger
+from jobs import scheduler, run_for_all
 from apscheduler.triggers.interval import IntervalTrigger
+import asyncio
 
 
-if not scheduler.get_job("user-expenses-by_year"):
-    job = UsersExpensesJob(UserRepository, ReceiptRepository)
+if not scheduler.get_job("all-user-expenses"):
     scheduler.add_job(
-        job.for_all_users(CalculationPeriod.YEAR),
-        trigger=CronTrigger(month=12, day=31, hour=23, minute=59),
-        id="user-expenses-years",
+        lambda: asyncio.create_task(run_for_all()),
+        trigger=IntervalTrigger(minutes=15),
+        id="all-user-expenses",
         replace_existing=True,
     )
 

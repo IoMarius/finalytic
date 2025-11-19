@@ -64,3 +64,21 @@ class ExpensesRepository(BaseRepository[DbUserExpenseSummary]):
 
         await self.session.execute(stmt)
         await self.session.commit()
+
+    async def get_summary(
+        self, user_id: str, period: CalculationPeriod, period_start: datetime
+    ) -> DbUserExpenseSummary:
+        # statement = (
+        #     select(DbUserExpenseSummary)
+        #     .where(DbUserExpenseSummary.user_id == user_id)
+        #     .where(DbUserExpenseSummary.period_type == period)
+        #     .where(DbUserExpenseSummary.period_start == period_start)
+        # )
+        summary = await self.session.scalar(
+            select(DbUserExpenseSummary)
+            .where(DbUserExpenseSummary.user_id == user_id)
+            .where(DbUserExpenseSummary.period_type == period)
+            .where(DbUserExpenseSummary.period_start == period_start)
+        )
+        # return result.scalars().all()
+        return summary

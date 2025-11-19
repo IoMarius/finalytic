@@ -14,7 +14,7 @@ BOT = TelegramBot(bot_token=os.getenv("BOT_TOKEN"))
 OCR_BLOCKS_THRESHOLD = int(os.getenv("OCR_BLOCKS_THRESHOLD"))
 
 
-async def process_raw_receipt(image_bytes: bytes, telegram_uid: str):
+async def process_raw_receipt(image_bytes: bytes, telegram_uid: str) -> str:
     try:
         user_id = await _create_user_if_missing(telegram_uid)
         logger.info(f"Processing receipt from user {user_id}")
@@ -43,6 +43,7 @@ async def process_raw_receipt(image_bytes: bytes, telegram_uid: str):
         )
 
         BOT.send_receipt_summary(telegram_uid, summary)
+        return user_id
     except ValidationError as e:
         logger.error(
             "Pipeline ocr to json validation exception.\n Receipt:", receipt_text, e

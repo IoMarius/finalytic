@@ -14,7 +14,10 @@ def extract_text_blocks(image_bytes: bytes) -> List[Dict]:
     Returns:
         List of dictionaries containing text, confidence, and position info
     """
-    ocr = PaddleOCR(lang="ro", use_angle_cls=True)
+    ocr = PaddleOCR(
+        lang="ro",
+        use_angle_cls=True,
+    )
 
     nparr = np.frombuffer(image_bytes, np.uint8)
     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
